@@ -1,0 +1,92 @@
+!INCLUDE Config.mnk
+
+CUR_DIR = $(MAKEDIR)
+SRC_DIR = $(MAKEDIR)\src
+7Z_EXE = $(SRC_DIR)\7z.exe
+PATH=$(PATH);$(MAKEDIR)
+CP = copy
+
+#---- ICU -----
+ICU_SRC =  $(SRC_DIR)\$(ICU_SRC_VER).7z
+ICU_DEST = $(CUR_DIR)
+
+!IF !EXIST($(ICU_DEST)\icu)
+EXTRACT_ICU = Extract_ICU
+BUILD_ICU = build_icu
+!ELSE
+!MESSAGE found ICU
+!ENDIF
+#---- END ICU -----
+
+#---- ZLIB -----
+ZLIB_SRC1 =  $(SRC_DIR)\$(ZLIB_SRC_VER).tar.gz
+ZLIB_SRC2 =  $(SRC_DIR)\$(ZLIB_SRC_VER).tar
+ZLIB_DEST = $(CUR_DIR)\$(ZLIB_SRC_VER)
+
+!IF !EXIST($(CUR_DIR)\$(ZLIB_SRC_VER))
+EXTRACT_ZLIB = Extract_ZLIB
+!ELSE
+!MESSAGE found ZLIB
+!ENDIF
+#---- END ZLIB -----
+
+#---- BZIP2 -----
+BZIP2_SRC1 =  $(SRC_DIR)\$(BZIP2_SRC_VER).tar.gz
+BZIP2_SRC2 =  $(SRC_DIR)\$(BZIP2_SRC_VER).tar
+ZLIB_DEST = $(CUR_DIR)\$(BZIP2_SRC_VER)
+
+!IF !EXIST($(CUR_DIR)\$(BZIP2_SRC_VER))
+EXTRACT_BZIP2 = Extract_BZIP2
+!ELSE
+!MESSAGE found BZIP2
+!ENDIF
+#---- END BZIP2 -----
+
+#---- XPAT -----
+XPAT_SRC =  $(SRC_DIR)\$(EXPAT_SRC_VER).zip
+
+!IF !EXIST($(CUR_DIR)\$(EXPAT_SRC_VER))
+EXTRACT_XPAT = Extract_XPAT
+!ELSE
+!MESSAGE found XPAT
+!ENDIF
+#---- END XPAT -----
+
+#---- BOOST -----
+BOOST_SRC =  $(SRC_DIR)\$(BOOST_SRC_VER).zip
+
+!IF !EXIST($(CUR_DIR)\$(BOOST_SRC_VER))
+EXTRACT_BOOST = Extract_Boost
+BUILD_BOOST = build_boost
+!ELSE
+!MESSAGE found BOOST
+!ENDIF
+#---- END XPAT -----
+###$(CP) /A/Y $(SRC_DIR)\user-config.jam $(CUR_DIR)\$(BOOST_SRC_VER)
+
+all: Extract_all Build_all
+
+Build_all: build_boost
+
+Extract_all: $(EXTRACT_ICU) $(EXTRACT_ZLIB) $(EXTRACT_BZIP2) $(EXTRACT_XPAT) $(EXTRACT_BOOST) 
+
+Extract_ICU:
+	$(7Z_EXE) x $(ICU_SRC) -y -o$(CUR_DIR)
+
+Extract_Boost:
+	$(7Z_EXE) x $(BOOST_SRC) -y -o$(CUR_DIR)
+
+build_boost:
+	nmake /f  $(CUR_DIR)\$(BOOST_MAKEFILE) all > Boost_Build.log	
+	 
+Extract_ZLIB:
+	$(7Z_EXE) x $(ZLIB_SRC1) -y -o$(CUR_DIR)\src			
+	$(7Z_EXE) x $(ZLIB_SRC2) -y -o$(CUR_DIR)			
+
+Extract_BZIP2:
+	$(7Z_EXE) x $(BZIP2_SRC1)  -y -o$(CUR_DIR)\src
+	$(7Z_EXE) x $(BZIP2_SRC2)  -y -o$(CUR_DIR)
+
+Extract_XPAT:
+	$(7Z_EXE) x $(XPAT_SRC)  -y -o$(CUR_DIR)
+

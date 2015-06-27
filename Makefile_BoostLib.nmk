@@ -1,0 +1,375 @@
+#Called by `Makefile_main.nmk`
+
+!INCLUDE Config.mnk
+CUR_DIR = $(MAKEDIR)
+BOOST_VER = $(BOOST_SRC_VER)
+BOOST_DIR = $(CUR_DIR)\$(BOOST_VER)
+
+BJAM = b2.exe
+
+BLD_DIR_SHARE_DBG = --build-dir=$(BOOST_DIR)\boost_share_debug
+BLD_DIR_SHARE_RELS = --build-dir=$(BOOST_DIR)\boost_share_release
+BLD_DIR_STATIC_DBG = --build-dir=$(BOOST_DIR)\boost_static_debug
+BLD_DIR_STATIC_RELS = --build-dir=$(BOOST_DIR)\boost_static_release
+BLD_DIR_SHARE64_DBG = --build-dir=$(BOOST_DIR)\boost_share64_debug
+BLD_DIR_SHARE64_RELS = --build-dir=$(BOOST_DIR)\boost_share64_release
+BLD_DIR_STATIC64_DBG = --build-dir=$(BOOST_DIR)\boost_static64_debug
+BLD_DIR_STATIC64_RELS = --build-dir=$(BOOST_DIR)\boost_static64_release
+
+DEPLOY=$(CUR_DIR)\$(BOOST_VER)_MsVCBuild
+DEPLOY_share_dbg = --prefix=$(DEPLOY)\boost_share_debug
+DEPLOY_share_rels = --prefix=$(DEPLOY)\boost_share_release
+DEPLOY_share64_dbg = --prefix=$(DEPLOY)\boost_shareX64_debug
+DEPLOY_share64_rels = --prefix=$(DEPLOY)\boost_shareX64_release
+DEPLOY_static_dbg = --prefix=$(DEPLOY)\boost_static_debug
+DEPLOY_static_rels = --prefix=$(DEPLOY)\boost_static_release
+DEPLOY_static64_dbg = --prefix=$(DEPLOY)\boost_staticX64_debug
+DEPLOY_static64_rels = --prefix=$(DEPLOY)\boost_staticX64_release
+
+# ---- Check to see if we need to build any of the 
+#  Boost libray (?)
+!IF !EXIST($(DEPLOY)\boost_share_debug)
+BUILD_SHR_DBG = build_share_debug
+CREATELIB_SHR_DBG = crealib_share_debug
+!ELSE
+!MESSAGE found $(DEPLOY)\boost_share_debug
+!ENDIF
+
+!IF !EXIST($(DEPLOY)\boost_share_release)
+BUILD_SHR_RELS = build_share_release
+CREATELIB_SHR_RELS = crealib_share_release
+!ELSE
+!MESSAGE found $(DEPLOY)\boost_share_release
+!ENDIF
+
+!IF !EXIST($(DEPLOY)\boost_shareX64_debug)
+BUILD_SHR64_DBG = build_share64_debug
+CREATELIB_SHR64_DBG = crealib_share_debug64
+!ELSE
+!MESSAGE found $(DEPLOY)\boost_shareX64_debug
+!ENDIF
+
+!IF !EXIST($(DEPLOY)\boost_shareX64_release)
+BUILD_SHR64_RELS = build_share64_release
+CREATELIB_SHR64_RELS = crealib_share_release64
+!ELSE
+!MESSAGE found $(DEPLOY)\boost_shareX64_release
+!ENDIF
+
+!IF !EXIST($(DEPLOY)\boost_static_debug)
+BUILD_STAT_DBG = build_static_debug
+!ELSE
+!MESSAGE found $(DEPLOY)\boost_static_debug
+!ENDIF
+
+!IF !EXIST($(DEPLOY)\boost_static_release)
+BUILD_STAT_RELS = build_static_release
+!ELSE
+!MESSAGE found $(DEPLOY)\boost_static_release
+!ENDIF
+
+!IF !EXIST($(DEPLOY)\boost_staticX64_debug)
+BUILD_STAT64_DBG = build_static64_debug
+!ELSE
+!MESSAGE found $(DEPLOY)\boost_shareX64_debug
+!ENDIF
+
+!IF !EXIST($(DEPLOY)\boost_staticX64_release)
+BUILD_STAT64_RELS = build_static64_release
+!ELSE
+!MESSAGE found $(DEPLOY)\boost_shareX64_release
+!ENDIF
+# ---- End check Boost libray (?)
+
+# -- Check and see if we need to build b2.exe (?)
+!IF !EXIST($(BOOST_DIR)\b2.exe)
+BUILD_B2 = Build_b2
+!ELSE
+!MESSAGE found b2.exe
+!ENDIF
+# ---- End check for b2.exe
+
+
+# -- Check and see if we have other libaries to include into the build
+
+# --- Do we have ICU? 
+ICU = $(CUR_DIR)\icu
+!IF EXIST($(ICU))
+INCL_ICU = -sHAVE_ICU=1 -sICU_PATH=$(ICU)\release_win32 
+!ELSE
+!MESSAGE ICU not found!
+!ENDIF
+
+ICU_REL_W32 = $(CUR_DIR)\icu\release_win32
+!IF EXIST($(ICU_REL_W32))
+INCL_ICU_REL_W32 = -sHAVE_ICU=1 -sICU_PATH=$(ICU_REL_W32) 
+!ELSE
+!MESSAGE $(ICU_REL_W32) not found!
+!ENDIF
+
+ICU_REL_X64 = $(CUR_DIR)\icu\release_x64
+!IF EXIST($(ICU_REL_X64))
+INCL_ICU_REL_X64 = -sHAVE_ICU=1 -sICU_PATH=$(ICU)\release_x64 
+!ELSE
+!MESSAGE $(ICU_REL_X64) not found!
+!ENDIF
+
+ICU_DBG_W32 = $(CUR_DIR)\icu\debug_win32
+!IF EXIST($(ICU_DBG_W32))
+INCL_ICU_DBG_W32 = -sHAVE_ICU=1 -sICU_PATH=$(ICU_DBG_W32) 
+!ELSE
+!MESSAGE $(ICU_DBG_W32) not found!
+!ENDIF
+
+ICU_DBG_X64 = $(CUR_DIR)\icu\debug_x64
+!IF EXIST($(ICU_DBG_X64))
+INCL_ICU_DBG_X64 = -sHAVE_ICU=1 -sICU_PATH=$(ICU)\debug_x64 
+!ELSE
+!MESSAGE $(ICU_DBG_X64) not found!
+!ENDIF
+
+# --- End check for ICU?
+
+# --- Do we have BZIP2?
+BZIP2 = $(CUR_DIR)\$(BZIP2_SRC_VER)
+!IF EXIST($(BZIP2))
+INCL_BZIP2 = -sBZIP2_SOURCE=$(BZIP2)   
+!ELSE
+!MESSAGE BZIP2 not found! 
+!ENDIF
+# --- End check for BZIP2?
+
+# --- Do we have ZLIB?
+ZLIB = $(CUR_DIR)\$(ZLIB_SRC_VER)
+!IF EXIST($(ZLIB))
+INCL_ZLIB = -sZLIB_SOURCE=$(ZLIB)   
+!ELSE
+!MESSAGE ZLIB not found! 
+!ENDIF
+# --- End check for ZLIB?
+
+# --- Do we have EXPAT?
+EXPAT = $(CUR_DIR)\$(EXPAT_SRC_VER)
+!IF EXIST($(EXPAT))
+INCL_EXPAT = -sEXPAT_INCLUDE=$(EXPAT)\Source\lib) -sEXPAT_LIBPATH=$(EXPAT)\Bin  
+!ELSE
+!MESSAGE EXPAT not found! 
+!ENDIF
+# --- End check for EXPAT?
+
+#-- Constructing command line for different flavor of builds
+# There are 4 flavors: share(win32), static(win32), share(x64), styatic(x64)
+
+BLD_COMPLETE = --build-type=complete
+BLD_VAR_RELEASE = variant=release
+LNK_SHARE = link=shared
+THRD_MULTI = threading=multi
+NUM_CORES = -j 4
+BLD_TYPE = install
+
+BUILD_SHARE = \
+	$(TOOL_SET) \
+	$(BLD_DIR_SHARE_RELS) \
+	$(BLD_COMPLETE) \
+	$(BLD_VAR_RELEASE) \
+	$(LNK_SHARE) \
+	$(THRD_MULTI) \
+	$(INCL_ICU_REL_W32) \
+	$(INCL_BZIP2) \
+	$(INCL_ZLIB) \
+	$(INCL_EXPAT) \
+	$(NUM_CORES)  \
+	$(DEPLOY_share_rels) \
+	$(BLD_TYPE)
+
+BUILD_SHARE_DBG = \
+	$(TOOL_SET) \
+	debug \
+	$(BLD_DIR_SHARE_DBG) \
+	$(BLD_COMPLETE) \
+	$(LNK_SHARE) \
+	$(THRD_MULTI) \
+	$(INCL_ICU_DBG_W32) \
+	$(INCL_BZIP2) \
+	$(INCL_ZLIB) \
+	$(INCL_EXPAT) \
+	$(NUM_CORES)  \
+	$(DEPLOY_share_dbg) \
+	$(BLD_TYPE)
+
+MODE64 = address-model=64
+BUILD_SHARE64 = \
+	$(TOOL_SET) \
+	$(BLD_DIR_SHARE64_RELS) \
+	$(BLD_COMPLETE) \
+	$(MODE64) \
+	$(BLD_VAR_RELEASE) \
+	$(LNK_SHARE) \
+	$(THRD_MULTI) \
+	$(INCL_ICU_REL_X64) \
+	$(INCL_BZIP2) \
+	$(INCL_ZLIB) \
+	$(INCL_EXPAT) \
+	$(NUM_CORES)  \
+	$(DEPLOY_share64_rels) \
+	$(BLD_TYPE)
+
+BUILD_SHARE64_DBG = \
+	$(TOOL_SET) \
+	debug \
+	$(BLD_DIR_SHARE64_DBG) \
+	$(BLD_COMPLETE) \
+	$(MODE64) \
+	$(LNK_SHARE) \
+	$(THRD_MULTI) \
+	$(INCL_ICU_DBG_X64) \
+	$(INCL_BZIP2) \
+	$(INCL_ZLIB) \
+	$(INCL_EXPAT) \
+	$(NUM_CORES)  \
+	$(DEPLOY_share64_dbg) \
+	$(BLD_TYPE)
+	
+LNK_STATIC = link=static
+
+BUILD_STATIC = \
+	$(TOOL_SET) \
+	$(BLD_DIR_STATIC_RELS) \
+	$(BLD_COMPLETE) \
+	$(BLD_VAR_RELEASE) \
+	$(LNK_STATIC) \
+	$(THRD_MULTI) \
+	$(INCL_ICU_REL_W32) \
+	$(INCL_BZIP2) \
+	$(INCL_ZLIB) \
+	$(INCL_EXPAT) \
+	$(NUM_CORES)  \
+	$(DEPLOY_static_rels) \
+	$(BLD_TYPE)
+
+BUILD_STATIC_DBG = \
+	$(TOOL_SET) \
+	debug \
+	$(BLD_DIR_STATIC_DBG) \
+	$(BLD_COMPLETE) \
+	$(LNK_STATIC) \
+	$(THRD_MULTI) \
+	$(INCL_ICU_DBG_W32) \
+	$(INCL_BZIP2) \
+	$(INCL_ZLIB) \
+	$(INCL_EXPAT) \
+	$(NUM_CORES)  \
+	$(DEPLOY_static_dbg) \
+	$(BLD_TYPE)
+
+BUILD_STATIC64 = \
+	$(TOOL_SET) \
+	$(BLD_DIR_STATIC64_RELS) \
+	$(BLD_COMPLETE) \
+	$(MODE64) \
+	$(BLD_VAR_RELEASE) \
+	$(LNK_STATIC) \
+	$(THRD_MULTI) \
+	$(INCL_ICU_REL_X64) \
+	$(INCL_BZIP2) \
+	$(INCL_ZLIB) \
+	$(INCL_EXPAT) \
+	$(NUM_CORES)  \
+	$(DEPLOY_static64_rels) \
+	$(BLD_TYPE)
+
+BUILD_STATIC64_DBG = \
+	$(TOOL_SET) \
+	debug \
+	$(BLD_DIR_STATIC64_DBG) \
+	$(BLD_COMPLETE) \
+	$(MODE64) \
+	$(LNK_STATIC) \
+	$(THRD_MULTI) \
+	$(INCL_ICU_DBG_X64) \
+	$(INCL_BZIP2) \
+	$(INCL_ZLIB) \
+	$(INCL_EXPAT) \
+	$(NUM_CORES)  \
+	$(DEPLOY_static64_dbg) \
+	$(BLD_TYPE)
+
+#--- Ignore non-zero return codes
+.IGNORE :
+
+# -- For testing --
+#all: build_share64 
+#all: $(BUILD_B2) build_share build_static build_share64
+# -- For testing --
+
+all: \
+$(BUILD_B2) \
+$(BUILD_STAT_DBG) \
+$(BUILD_STAT_RELS) \
+$(BUILD_STAT64_DBG) \
+$(BUILD_STAT64_RELS) \
+$(BUILD_SHR_DBG) \
+$(CREATELIB_SHR_DBG) \
+$(BUILD_SHR64_DBG) \
+$(CREATELIB_SHR64_DBG) \
+$(BUILD_SHR_RELS) \
+$(CREATELIB_SHR_RELS) \
+$(BUILD_SHR64_RELS) \
+$(CREATELIB_SHR64_RELS)
+
+
+Build_b2:
+	cd $(BOOST_DIR) && .\bootstrap.bat
+
+build_share_release:
+	@echo $(BUILD_SHARE)
+	cd $(BOOST_DIR) && .\$(BJAM) $(BUILD_SHARE)
+
+build_share_debug:
+	@echo $(BUILD_SHARE_DBG)
+	cd $(BOOST_DIR) && .\$(BJAM) $(BUILD_SHARE_DBG)
+
+build_share64_release:
+	@echo $(BUILD_SHARE64)
+	cd $(BOOST_DIR) && .\$(BJAM) $(BUILD_SHARE64)
+
+build_share64_debug:
+	@echo $(BUILD_SHARE64_DBG)
+	cd $(BOOST_DIR) && .\$(BJAM) $(BUILD_SHARE64_DBG)
+
+build_static_release:
+	@echo $(BUILD_STATIC)
+	cd $(BOOST_DIR) && .\$(BJAM) $(BUILD_STATIC)
+
+build_static_debug:
+	@echo $(BUILD_STATIC_DBG)
+	cd $(BOOST_DIR) && .\$(BJAM) $(BUILD_STATIC_DBG)
+
+build_static64_release:
+	@echo $(BUILD_STATIC64)
+	cd $(BOOST_DIR) && .\$(BJAM) $(BUILD_STATIC64)
+
+build_static64_debug:
+	@echo $(BUILD_STATIC64_DBG)
+	cd $(BOOST_DIR) && .\$(BJAM) $(BUILD_STATIC64_DBG)
+
+crealib_share_debug:
+	cd $(DEPLOY)\boost_share_debug\lib && forfiles /m boost*.lib /C "cmd /c copy @file .\lib@file"
+	cd $(DEPLOY)\boost_share_debug\lib && copy libboost_exception-vc120-mt-gd-$(SHT_VER).lib boost_exception-vc120-mt-gd-$(SHT_VER).lib
+	cd $(DEPLOY)\boost_share_debug\lib && copy libboost_test_exec_monitor-vc120-mt-gd-$(SHT_VER).lib boost_test_exec_monitor-vc120-mt-gd-$(SHT_VER).lib
+
+crealib_share_release:
+	cd $(DEPLOY)\boost_share_release\lib && forfiles /m boost*.lib /C "cmd /c copy @file .\lib@file"
+	cd $(DEPLOY)\boost_share_release\lib && copy libboost_exception-vc120-mt-$(SHT_VER).lib boost_exception-vc120-mt-$(SHT_VER).lib
+	cd $(DEPLOY)\boost_share_release\lib && copy libboost_test_exec_monitor-vc120-mt-$(SHT_VER).lib boost_test_exec_monitor-vc120-mt-$(SHT_VER).lib
+
+crealib_share_debug64:
+	cd $(DEPLOY)\boost_shareX64_debug\lib && forfiles /m boost*.lib /C "cmd /c copy @file .\lib@file"
+	cd $(DEPLOY)\boost_shareX64_debug\lib && copy libboost_exception-vc120-mt-gd-$(SHT_VER).lib boost_exception-vc120-mt-gd-$(SHT_VER).lib
+	cd $(DEPLOY)\boost_shareX64_debug\lib && copy libboost_test_exec_monitor-vc120-mt-gd-$(SHT_VER).lib boost_test_exec_monitor-vc120-mt-gd-$(SHT_VER).lib
+
+crealib_share_release64:
+	cd $(DEPLOY)\boost_shareX64_release\lib && forfiles /m boost*.lib /C "cmd /c copy @file .\lib@file"
+	cd $(DEPLOY)\boost_shareX64_release\lib && copy libboost_exception-vc120-mt-$(SHT_VER).lib boost_exception-vc120-mt-$(SHT_VER).lib
+	cd $(DEPLOY)\boost_shareX64_release\lib && copy libboost_test_exec_monitor-vc120-mt-$(SHT_VER).lib boost_test_exec_monitor-vc120-mt-$(SHT_VER).lib
+
