@@ -1,0 +1,17 @@
+#VS 2010
+#TOOL_SET = msvc-10.0
+
+#VS 2013
+TOOL_SET = --toolset=msvc-12.0
+
+BOOST_SRC_VER = boost_1_58_0
+SHT_VER = 1_58
+BOOST_MAKEFILE = Makefile_BoostLib.nmk
+
+BZIP2_SRC_VER = bzip2-1.0.6
+
+ZLIB_SRC_VER = zlib-1.2.8
+
+EXPAT_SRC_VER = Expat2.1.0
+
+ICU_SRC_VER = icu
