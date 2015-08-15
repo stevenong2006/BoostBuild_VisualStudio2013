@@ -4,8 +4,8 @@
 #VS 2013
 TOOL_SET = --toolset=msvc-12.0
 
-BOOST_SRC_VER = boost_1_59_0
-SHT_VER = 1_59
+BOOST_SRC_VER = boost_1_58_0
+SHT_VER = 1_58
 BOOST_MAKEFILE = Makefile_BoostLib.nmk
 
 BZIP2_SRC_VER = bzip2-1.0.6
